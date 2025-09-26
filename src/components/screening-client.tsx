@@ -15,6 +15,8 @@ import { Logo } from "./logo";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Link from "next/link";
 import ReactMarkdown from 'react-markdown';
+import type { Components } from "react-markdown";
+import type { AnchorHTMLAttributes, DetailedHTMLProps } from "react";
 
 
 type Message = {
@@ -220,14 +222,16 @@ export function ScreeningClient() {
     }
   };
 
-  const renderers = {
-    a: ({href, children}: {href?: string, children: React.ReactNode}) => {
+
+  const renderers: Components = {
+    a: (props: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>) => {
+        const { href, children } = props;
         if (href) {
             return <Button asChild variant="link" className="p-0 h-auto text-base"><Link href={href}>{children}</Link></Button>
         }
         return <>{children}</>
     },
-    p: ({children}: {children: React.ReactNode}) => <p className="mb-2 last:mb-0">{children}</p>
+    p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>
   };
 
   const suggestionPrompts = [
@@ -304,13 +308,13 @@ export function ScreeningClient() {
             )}
         </ScrollArea>
         <div className="p-4 bg-transparent">
-            <div className="relative mx-auto max-w-2xl bg-background/80 backdrop-blur-lg rounded-2xl border shadow-xl">
+            <div className="relative mx-auto max-w-4xl bg-background/80 backdrop-blur-lg rounded-2xl border shadow-xl">
                 {screeningType && currentQuestion ? (
                     <div className="p-4">
                         <p className="text-sm text-center text-muted-foreground mb-2">Please select a response for the question above:</p>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {screeningOptions[screeningType].responseOptions.map(opt => (
-                                <Button key={opt} variant="outline" onClick={() => handleResponse(opt)} disabled={isLoading}>
+                                <Button  key={opt} variant="outline" onClick={() => handleResponse(opt)} disabled={isLoading}>
                                     {opt}
                                 </Button>
                             ))}
@@ -320,8 +324,8 @@ export function ScreeningClient() {
                 <>
                     <Textarea 
                         placeholder="Message Heal Buddy..." 
-                        className="flex-1 resize-none pr-14 pl-4 py-3 bg-transparent border-0 focus-visible:ring-0" 
-                        rows={1}
+                        className="flex-1 resize-none pr-14 pl-4 py-3 bg-transparent border-0 focus-visible:ring-0 h-32" 
+                        rows={3}
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => {
@@ -335,7 +339,7 @@ export function ScreeningClient() {
                         onClick={handleFreeformResponse} 
                         disabled={isLoading || inputValue.trim() === ""} 
                         size="icon" 
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 bg-primary/90 hover:bg-primary text-primary-foreground"
+                        className="absolute right-2 top-3/4 -translate-y-1/2 h-9 w-9 bg-primary/90 hover:bg-primary text-primary-foreground"
                     >
                         <ArrowUp size={20} />
                     </Button>
@@ -343,7 +347,7 @@ export function ScreeningClient() {
                 )}
             </div>
             {(!screeningType || !currentQuestion) && (
-                 <div className="mt-3 max-w-2xl mx-auto">
+                 <div className="mt-3 max-w-4xl mx-auto">
                      <p className="text-xs text-muted-foreground mb-2 px-2">Not sure where to start? Try one of these:</p>
                      <div className="flex flex-wrap gap-2">
                         {suggestionPrompts.map((prompt) => (
