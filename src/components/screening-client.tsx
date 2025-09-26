@@ -7,11 +7,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Bot, User, Send, BookOpen, Users, Briefcase } from "lucide-react";
+import { Bot, User, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ConversationalScreeningInput } from "@/ai/flows/conversational-screening";
 import { Textarea } from "./ui/textarea";
+import { Logo } from "./logo";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Link from "next/link";
+import ReactMarkdown from 'react-markdown';
+
 
 type Message = {
   role: "user" | "assistant";
@@ -36,6 +40,12 @@ const LoadingIndicator = () => (
       <div className="h-2 w-2 bg-current rounded-full animate-bounce"></div>
     </div>
   );
+
+const SuggestedAction = ({ href, text }: { href: string, text: string }) => (
+    <Button asChild variant="outline" className="mt-2">
+        <Link href={href}>{text}</Link>
+    </Button>
+);
 
 export function ScreeningClient() {
   const router = useRouter();
@@ -64,6 +74,8 @@ export function ScreeningClient() {
     const storedDate = localStorage.getItem('lastScreeningDate');
     if (storedDate) {
       setLastScreeningDate(new Date(storedDate));
+    } else {
+      setLastScreeningDate(null); // Explicitly set to null if not found
     }
   }, []);
 
@@ -77,11 +89,11 @@ export function ScreeningClient() {
   };
   
   useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && lastScreeningDate !== undefined) {
       setIsLoading(true);
       setTimeout(() => {
         if (shouldPromptForScreening()) {
-          setMessages([{ role: "assistant", content: "Hi, I’m here to listen and help. It looks like it's been a while. Would you like to take a quick wellbeing screening?" }]);
+          setMessages([{ role: "assistant", content: "Hi, I’m here to listen and help. It looks like it's been a while. Would you like to take a quick wellbeing screening? You can say 'Start PHQ-9', 'Start GAD-7', or 'Start GHQ'." }]);
         } else {
           setMessages([{ role: "assistant", content: "Hello! I'm WellConverse, your personal AI mental wellness companion. How are you feeling today?" }]);
         }
@@ -93,13 +105,13 @@ export function ScreeningClient() {
   const startScreening = async (type: keyof typeof screeningOptions) => {
     setIsLoading(true);
     setScreeningType(type);
-    setMessages(prev => [...prev, { role: "user", content: `I'd like to start the ${screeningOptions[type].name} screening.` }, { role: "assistant", content: `Okay, let's start the ${screeningOptions[type].name} screening. I'll ask a series of questions.` }]);
+    setMessages(prev => [...prev, { role: "user", content: `I'd like to start the ${screeningOptions[type].name} screening.` }]);
     
     try {
       const input: ConversationalScreeningInput = { screeningType: type };
       const response = await conversationalScreening(input);
       if (response.nextQuestion) {
-        setMessages(prev => [...prev, { role: "assistant", content: response.nextQuestion! }]);
+        setMessages(prev => [...prev, { role: "assistant", content: `Okay, let's start the ${screeningOptions[type].name} screening. I'll ask a series of questions.\n\n${response.nextQuestion}` }]);
         setCurrentQuestion(response.nextQuestion);
         setQuestionNumber(1);
       }
@@ -119,22 +131,40 @@ export function ScreeningClient() {
     setMessages(newMessages);
     setIsLoading(true);
 
-    if (answer.toLowerCase().includes('phq-9')) {
+    if (answer.toLowerCase().includes('start phq-9')) {
       startScreening('PHQ-9');
       return;
     }
-    if (answer.toLowerCase().includes('gad-7')) {
+    if (answer.toLowerCase().includes('start gad-7')) {
         startScreening('GAD-7');
         return;
     }
-    if (answer.toLowerCase().includes('ghq')) {
+    if (answer.toLowerCase().includes('start ghq')) {
         startScreening('GHQ');
         return;
     }
 
     // AI will decide navigation
     setTimeout(() => {
-        setMessages(prev => [...prev, { role: "assistant", content: "I'm here to listen. You can tell me about what's on your mind, or you can start a formal screening like PHQ-9, GAD-7, or GHQ." }]);
+        let response = "I'm here to listen. You can tell me about what's on your mind. If you'd like, we can also start a formal screening to get a better sense of how you're feeling. Just say `Start PHQ-9` for depression, `Start GAD-7` for anxiety, or `Start GHQ` for general well-being.";
+        
+        if (/\b(resource|article|help|tip)\b/i.test(answer)) {
+            response = "It sounds like you're looking for some resources. I can guide you to our Resource Hub. It has articles, tools, and guided exercises. Would you like to go there?";
+        } else if (/\b(peer|community|talk to someone)\b/i.test(answer)) {
+            response = "Connecting with others can be really helpful. Our Peer Support page allows you to connect with people who have similar experiences. Would you like me to take you there?";
+        } else if (/\b(counsellor|therapist|professional)\b/i.test(answer)) {
+            response = "Speaking with a professional is a great step. I can help you find a counsellor. Would you like to see a list of available professionals?";
+        }
+
+        const finalResponse = `${response}\n\n${
+            /\b(resource|article|help|tip)\b/i.test(answer) ? `[Go to Resource Hub](/resources)` : ''
+        }${
+            /\b(peer|community|talk to someone)\b/i.test(answer) ? `\n[Go to Peer Support](/peer-support)` : ''
+        }${
+            /\b(counsellor|therapist|professional)\b/i.test(answer) ? `\n[Find a Counsellor](/counsellor)` : ''
+        }`;
+
+        setMessages(prev => [...prev, { role: "assistant", content: finalResponse }]);
         setIsLoading(false);
     }, 1500);
 
@@ -173,7 +203,7 @@ export function ScreeningClient() {
           conversationHistory: newHistory.map(h => `Q: ${h.question}\nA: ${h.answer}`).join('\n\n'),
         });
         
-        const feedbackMessage = `${feedbackResponse.feedback}\n\n**Resource Recommendations:**\n${feedbackResponse.resourceRecommendations}\n\nWe can continue chatting, or I can guide you to other support systems. What feels right for you?`;
+        const feedbackMessage = `${feedbackResponse.feedback}\n\n**Resource Recommendations:**\n${feedbackResponse.resourceRecommendations}\n\nWhat feels right for you now? We can explore resources, connect you with peer support, or help you find a counsellor.\n\n[Explore Resources](/resources)\n[Visit Peer Support](/peer-support)\n[Find a Counsellor](/counsellor)`;
         setMessages(prev => [...prev, { role: "assistant", content: feedbackMessage }]);
 
       } else if (response.nextQuestion) {
@@ -189,13 +219,34 @@ export function ScreeningClient() {
     }
   };
 
+  const renderers = {
+    a: ({href, children}: {href?: string, children: React.ReactNode}) => {
+        if (href) {
+            return <Button asChild variant="link" className="p-0 h-auto text-base"><Link href={href}>{children}</Link></Button>
+        }
+        return <>{children}</>
+    },
+    p: ({children}: {children: React.ReactNode}) => <p className="mb-2 last:mb-0">{children}</p>
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] h-full w-full">
-        <div className="flex flex-col h-full">
-            <header className="p-4 border-b">
-                <h1 className="text-xl font-bold font-headline">Conversation</h1>
-            </header>
-            <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+    <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
+        <header className="p-4 flex items-center justify-between">
+            <Logo className="h-8 w-auto" />
+        </header>
+        <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+            {messages.length === 0 && !isLoading ? (
+                 <div className="flex flex-col items-center text-center">
+                    <Card className="max-w-md">
+                        <CardHeader>
+                            <CardTitle>Welcome to WellConverse</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">This is a safe space to check in with your mental well-being. You can talk about what's on your mind, or take a guided screening. How can I help you today?</p>
+                        </CardContent>
+                    </Card>
+                 </div>
+            ) : (
                 <div className="space-y-6">
                 {messages.map((message, index) => (
                     <div
@@ -214,13 +265,13 @@ export function ScreeningClient() {
                     )}
                     <div
                         className={cn(
-                        "max-w-md lg:max-w-lg rounded-xl px-4 py-3 text-sm whitespace-pre-wrap",
+                        "max-w-md lg:max-w-2xl rounded-xl px-4 py-3 text-sm whitespace-pre-wrap",
                         message.role === "user"
                             ? "bg-primary text-primary-foreground"
                             : "bg-secondary text-secondary-foreground"
                         )}
                     >
-                        {message.content}
+                       <ReactMarkdown components={renderers}>{message.content}</ReactMarkdown>
                     </div>
                     {message.role === "user" && (
                         <Avatar className="h-9 w-9">
@@ -242,8 +293,10 @@ export function ScreeningClient() {
                     </div>
                 )}
                 </div>
-            </ScrollArea>
-            <div className="p-4 bg-background/95">
+            )}
+        </ScrollArea>
+        <div className="p-4 bg-background/95">
+            <div className="relative">
                 {screeningType && currentQuestion ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {screeningOptions[screeningType].responseOptions.map(opt => (
@@ -253,10 +306,10 @@ export function ScreeningClient() {
                         ))}
                     </div>
                 ) : (
-                <div className="relative">
+                <>
                     <Textarea 
-                    placeholder="Ask a question or make a request..." 
-                    className="flex-1 resize-none pr-12" 
+                    placeholder="Message WellConverse..." 
+                    className="flex-1 resize-none pr-12 bg-secondary border-0" 
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={(e) => {
@@ -269,35 +322,13 @@ export function ScreeningClient() {
                     <Button onClick={handleFreeformResponse} disabled={isLoading || inputValue.trim() === ""} size="icon" className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8">
                         <Send size={18} />
                     </Button>
-                </div>
+                </>
                 )}
             </div>
+             <p className="text-xs text-center text-muted-foreground mt-2">
+                WellConverse is an AI assistant and is not a substitute for professional medical advice.
+            </p>
         </div>
-        <aside className="hidden md:flex flex-col border-l p-4 space-y-4">
-            <h3 className="text-lg font-semibold">Suggested Actions</h3>
-            <Button variant="outline" className="w-full justify-start" onClick={() => startScreening('PHQ-9')}>Start PHQ-9 Screening</Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => startScreening('GAD-7')}>Start GAD-7 Screening</Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => startScreening('GHQ')}>Start GHQ Screening</Button>
-            
-            <div className="!mt-8">
-                <h3 className="text-lg font-semibold">Quick Links</h3>
-            </div>
-             <Button asChild variant="ghost" className="justify-start text-muted-foreground hover:text-foreground">
-                <Link href="/resources">
-                    <BookOpen /> Resource Hub
-                </Link>
-            </Button>
-            <Button asChild variant="ghost" className="justify-start text-muted-foreground hover:text-foreground">
-                <Link href="/peer-support">
-                    <Users /> Peer Support
-                </Link>
-            </Button>
-            <Button asChild variant="ghost" className="justify-start text-muted-foreground hover:text-foreground">
-                <Link href="/counsellor">
-                    <Briefcase /> Find a Counsellor
-                </Link>
-            </Button>
-        </aside>
     </div>
   );
 }
