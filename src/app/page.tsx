@@ -21,7 +21,7 @@ export default function Home() {
         <div className="bg-background/80 backdrop-blur-sm rounded-full px-6 py-3 flex items-center shadow-lg border">
           <Link href="#" className="flex items-center justify-center" prefetch={false}>
             <Logo className="h-8 w-auto" />
-            <span className="sr-only">WellConverse</span>
+            <span className="sr-only">Heal Buddy</span>
           </Link>
           <nav className="ml-auto flex gap-6 items-center">
             <Link
@@ -69,7 +69,7 @@ export default function Home() {
                     Right now.
                   </h1>
                   <p className="max-w-[600px] mx-auto text-muted-foreground md:text-xl">
-                    WellConverse offers a safe and confidential space to check in with yourself through guided, conversational screenings powered by AI.
+                    Heal Buddy offers a safe and confidential space to check in with yourself through guided, conversational screenings powered by AI.
                   </p>
                 </div>
                 <div className="flex justify-center flex-col gap-2 min-[400px]:flex-row">
@@ -144,7 +144,7 @@ export default function Home() {
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} WellConverse. All rights reserved.
+          &copy; {new Date().getFullYear()} Heal Buddy. All rights reserved.
         </p>
         <div className="sm:ml-auto flex gap-4 sm:gap-6 text-xs text-muted-foreground">
           Disclaimer: This is not a replacement for professional medical advice.

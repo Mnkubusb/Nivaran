@@ -60,12 +60,13 @@ export function ScreeningClient() {
   const [lastScreeningDate, setLastScreeningDate] = useState<Date | null>(null);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: "smooth",
+    if (viewportRef.current) {
+      viewportRef.current.scrollTo({
+        top: viewportRef.current.scrollHeight,
+        behavior: 'smooth'
       });
     }
   }, [messages, isLoading]);
@@ -95,7 +96,7 @@ export function ScreeningClient() {
         if (shouldPromptForScreening()) {
           setMessages([{ role: "assistant", content: "Hi, I’m here to listen and help. It looks like it's been a while. Would you like to take a quick wellbeing screening? You can say 'Start PHQ-9', 'Start GAD-7', or 'Start GHQ'." }]);
         } else {
-          setMessages([{ role: "assistant", content: "Hello! I'm WellConverse, your personal AI mental wellness companion. How are you feeling today?" }]);
+          setMessages([{ role: "assistant", content: "Hello! I'm Heal Buddy, your personal AI mental wellness companion. How are you feeling today?" }]);
         }
         setIsLoading(false);
       }, 1000);
@@ -241,12 +242,12 @@ export function ScreeningClient() {
         <header className="p-4 flex items-center justify-between">
             <Logo className="h-8 w-auto" />
         </header>
-        <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+        <ScrollArea className="flex-1 p-6" ref={scrollAreaRef} viewportRef={viewportRef}>
             {messages.length === 0 && !isLoading ? (
                  <div className="flex flex-col items-center text-center">
                     <Card className="max-w-md">
                         <CardHeader>
-                            <CardTitle>Welcome to WellConverse</CardTitle>
+                            <CardTitle>Welcome to Heal Buddy</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">This is a safe space to check in with your mental well-being. You can talk about what's on your mind, or take a guided screening. How can I help you today?</p>
@@ -318,7 +319,7 @@ export function ScreeningClient() {
                 ) : (
                 <>
                     <Textarea 
-                        placeholder="Message WellConverse..." 
+                        placeholder="Message Heal Buddy..." 
                         className="flex-1 resize-none pr-14 pl-4 py-3 bg-transparent border-0 focus-visible:ring-0" 
                         rows={1}
                         value={inputValue}
@@ -362,11 +363,9 @@ export function ScreeningClient() {
                  </div>
             )}
              <p className="text-xs text-center text-muted-foreground mt-4">
-                WellConverse is an AI assistant and is not a substitute for professional medical advice.
+                Heal Buddy is an AI assistant and is not a substitute for professional medical advice.
             </p>
         </div>
     </div>
   );
 }
-
-    

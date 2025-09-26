@@ -70,7 +70,7 @@ export function Logo({ className, justIcon = false }: { className?: string, just
         />
       </svg>
 
-      {!justIcon && <span className="font-headline">WellConverse</span>}
+      {!justIcon && <span className="font-headline">Heal Buddy</span>}
     </div>
   );
 }

@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils';
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: 'WellConverse | AI-Powered Mental Wellness Companion',
+  title: 'Heal Buddy | AI-Powered Mental Wellness Companion',
   description:
-    'WellConverse is your confidential space for mental wellness. Engage in AI-powered conversational screenings, access curated resources, and find support on your journey to well-being.',
+    'Heal Buddy is your confidential space for mental wellness. Engage in AI-powered conversational screenings, access curated resources, and find support on your journey to well-being.',
 };
 
 export default function RootLayout({
