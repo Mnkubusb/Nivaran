@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const publicPaths = ['/', '/login', '/signup'];
-    if (user && !loading && publicPaths.includes(pathname)) {
+    if (!loading && user && publicPaths.includes(pathname)) {
       router.push("/screening");
     }
   }, [user, loading, router, pathname]);
@@ -68,6 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     setUser(result.user);
+    router.push('/screening'); // Explicitly redirect after successful login
     return result;
   };
 
