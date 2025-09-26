@@ -45,7 +45,7 @@ const LoadingIndicator = () => (
   );
 
 const SuggestedAction = ({ href, text }: { href: string, text: string }) => (
-    <Button asChild variant="outline" className="mt-2">
+    <Button asChild variant="outline" className="mt-2 text-black">
         <Link href={href}>{text}</Link>
     </Button>
 );
