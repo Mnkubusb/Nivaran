@@ -11,6 +11,7 @@ import { Bot, User, Send, BookOpen, Users, Briefcase } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ConversationalScreeningInput } from "@/ai/flows/conversational-screening";
 import { Textarea } from "./ui/textarea";
+import Link from "next/link";
 
 type Message = {
   role: "user" | "assistant";
