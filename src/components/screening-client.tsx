@@ -2,6 +2,7 @@
 
 import { conversationalScreening } from "@/ai/flows/conversational-screening";
 import { getPersonalizedFeedback } from "@/ai/flows/personalized-feedback";
+import { conversationalCompanion } from "@/ai/flows/conversational-companion";
 import React, { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -147,29 +148,18 @@ export function ScreeningClient() {
         return;
     }
 
-    // AI will decide navigation
-    setTimeout(() => {
-        let response = "I'm here to listen. You can tell me about what's on your mind. If you'd like, we can also start a formal screening to get a better sense of how you're feeling. Just say `Start PHQ-9` for depression, `Start GAD-7` for anxiety, or `Start GHQ` for general well-being.";
-        
-        if (/\b(resource|article|help|tip)\b/i.test(answer)) {
-            response = "It sounds like you're looking for some resources. I can guide you to our Resource Hub. It has articles, tools, and guided exercises. Would you like to go there?";
-        } else if (/\b(peer|community|talk to someone)\b/i.test(answer)) {
-            response = "Connecting with others can be really helpful. Our Peer Support page allows you to connect with people who have similar experiences. Would you like me to take you there?";
-        } else if (/\b(counsellor|therapist|professional)\b/i.test(answer)) {
-            response = "Speaking with a professional is a great step. I can help you find a counsellor. Would you like to see a list of available professionals?";
-        }
-
-        const finalResponse = `${response}\n\n${
-            /\b(resource|article|help|tip)\b/i.test(answer) ? `[Go to Resource Hub](/resources)` : ''
-        }${
-            /\b(peer|community|talk to someone)\b/i.test(answer) ? `\n[Go to Peer Support](/peer-support)` : ''
-        }${
-            /\b(counsellor|therapist|professional)\b/i.test(answer) ? `\n[Find a Counsellor](/counsellor)` : ''
-        }`;
-
-        setMessages(prev => [...prev, { role: "assistant", content: finalResponse }]);
+    try {
+        const response = await conversationalCompanion({
+            message: answer,
+            conversationHistory: messages
+        });
+        setMessages(prev => [...prev, { role: "assistant", content: response.response }]);
+    } catch (error) {
+        console.error(error);
+        setMessages(prev => [...prev, { role: "assistant", content: "I'm sorry, something went wrong. Could you please try again?" }]);
+    } finally {
         setIsLoading(false);
-    }, 1500);
+    }
 
   }
 

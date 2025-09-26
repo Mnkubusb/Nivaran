@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/personalized-feedback.ts';
 import '@/ai/flows/conversational-screening.ts';
+import '@/ai/flows/conversational-companion.ts';
