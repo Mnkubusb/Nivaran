@@ -302,8 +302,8 @@ export function ScreeningClient() {
                 </div>
             )}
         </ScrollArea>
-        <div className="p-4 bg-background/50 backdrop-blur-lg rounded-t-3xl border-t">
-            <div className="relative bg-background rounded-2xl">
+        <div className="p-4 bg-transparent">
+            <div className="relative mx-auto max-w-2xl bg-background/80 backdrop-blur-lg rounded-2xl border shadow-xl">
                 {screeningType && currentQuestion ? (
                     <div className="p-4">
                         <p className="text-sm text-center text-muted-foreground mb-2">Please select a response for the question above:</p>
@@ -342,7 +342,7 @@ export function ScreeningClient() {
                 )}
             </div>
             {(!screeningType || !currentQuestion) && (
-                 <div className="mt-3">
+                 <div className="mt-3 max-w-2xl mx-auto">
                      <p className="text-xs text-muted-foreground mb-2 px-2">Not sure where to start? Try one of these:</p>
                      <div className="flex flex-wrap gap-2">
                         {suggestionPrompts.map((prompt) => (
@@ -353,7 +353,6 @@ export function ScreeningClient() {
                                 className="rounded-full h-auto py-1 px-3 text-xs"
                                 onClick={() => {
                                     setInputValue(prompt);
-                                    handleFreeformResponse();
                                 }}
                             >
                                  {prompt}
