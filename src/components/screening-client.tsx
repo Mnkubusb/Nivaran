@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Bot, User } from "lucide-react";
-import { Logo } from "./logo";
+import { Bot, User, MessageSquarePlus, BookOpen, Users, Briefcase } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { ConversationalScreeningInput } from "@/ai/flows/conversational-screening";
+import { Textarea } from "./ui/textarea";
+import { Send } from "lucide-react";
 
 type Message = {
   role: "user" | "assistant";
@@ -37,6 +39,7 @@ const LoadingIndicator = () => (
   );
 
 export function ScreeningClient() {
+  const router = useRouter();
   const [screeningType, setScreeningType] = useState<keyof typeof screeningOptions | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationHistory, setConversationHistory] = useState<ConversationHistoryItem[]>([]);
@@ -44,6 +47,8 @@ export function ScreeningClient() {
   const [isComplete, setIsComplete] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(null);
   const [questionNumber, setQuestionNumber] = useState(0);
+  const [chatMode, setChatMode] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -56,10 +61,23 @@ export function ScreeningClient() {
     }
   }, [messages, isLoading]);
 
+  useEffect(() => {
+    if (!screeningType && !chatMode) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setMessages([{ role: "assistant", content: "Hello! I'm WellConverse, your personal AI mental wellness companion. How are you feeling today?" }]);
+        setIsLoading(false);
+        setChatMode(true);
+      }, 1000);
+    }
+  }, [screeningType, chatMode]);
+  
+
   const startScreening = async (type: keyof typeof screeningOptions) => {
     setScreeningType(type);
-    setMessages([{ role: "assistant", content: `Okay, let's start the ${screeningOptions[type].name} screening. I'll ask a series of questions. Please respond honestly.` }]);
+    setMessages([{ role: "user", content: `I'd like to start the ${screeningOptions[type].name} screening.` }, { role: "assistant", content: `Okay, let's start the ${screeningOptions[type].name} screening. I'll ask a series of questions.` }]);
     setIsLoading(true);
+    setChatMode(false); // Switch to guided response mode
     try {
       const input: ConversationalScreeningInput = { screeningType: type };
       const response = await conversationalScreening(input);
@@ -75,6 +93,48 @@ export function ScreeningClient() {
       setIsLoading(false);
     }
   };
+
+  const handleFreeformResponse = async () => {
+    if (inputValue.trim() === "") return;
+    const answer = inputValue;
+    setInputValue("");
+    const newMessages: Message[] = [...messages, { role: "user", content: answer }];
+    setMessages(newMessages);
+    setIsLoading(true);
+
+    if (answer.toLowerCase().includes('phq-9')) {
+      startScreening('PHQ-9');
+      return;
+    }
+    if (answer.toLowerCase().includes('gad-7')) {
+        startScreening('GAD-7');
+        return;
+    }
+    if (answer.toLowerCase().includes('ghq')) {
+        startScreening('GHQ');
+        return;
+    }
+    
+    // Simple mock of chatbot deciding where to navigate
+    if (answer.toLowerCase().includes('resources')) {
+        router.push('/resources');
+        return;
+    }
+    if (answer.toLowerCase().includes('counsellor')) {
+        router.push('/counsellor');
+        return;
+    }
+    if (answer.toLowerCase().includes('peer support')) {
+        router.push('/peer-support');
+        return;
+    }
+
+    setTimeout(() => {
+        setMessages(prev => [...prev, { role: "assistant", content: "I'm here to listen. You can tell me about what's on your mind, or you can start a formal screening like PHQ-9, GAD-7, or GHQ." }]);
+        setIsLoading(false);
+    }, 1500);
+
+  }
 
   const handleResponse = async (answer: string) => {
     if (!screeningType || !currentQuestion) return;
@@ -98,15 +158,15 @@ export function ScreeningClient() {
 
       if (response.isComplete) {
         setIsComplete(true);
+        setChatMode(true); // Switch back to chat mode
         setMessages(prev => [...prev, { role: "assistant", content: response.summary || "Screening complete. Let me analyze your results..." }]);
         
-        // Get personalized feedback
         const feedbackResponse = await getPersonalizedFeedback({
           screeningResults: response.summary || "No summary provided",
           conversationHistory: newHistory.map(h => `Q: ${h.question}\nA: ${h.answer}`).join('\n\n'),
         });
         
-        const feedbackMessage = `${feedbackResponse.feedback}\n\n**Resource Recommendations:**\n${feedbackResponse.resourceRecommendations}`;
+        const feedbackMessage = `${feedbackResponse.feedback}\n\n**Resource Recommendations:**\n${feedbackResponse.resourceRecommendations}\n\nWe can continue chatting, or I can guide you to other support systems. What feels right for you?`;
         setMessages(prev => [...prev, { role: "assistant", content: feedbackMessage }]);
 
       } else if (response.nextQuestion) {
@@ -130,26 +190,7 @@ export function ScreeningClient() {
     setIsComplete(false);
     setCurrentQuestion(null);
     setQuestionNumber(0);
-  }
-
-  if (!screeningType) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <Card className="w-full max-w-lg">
-          <CardHeader>
-            <CardTitle>Start a Confidential Screening</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <p className="text-muted-foreground">Choose a screening to begin. Your conversation is private and secure.</p>
-            {Object.keys(screeningOptions).map((key) => (
-              <Button key={key} onClick={() => startScreening(key as keyof typeof screeningOptions)} size="lg">
-                {screeningOptions[key as keyof typeof screeningOptions].name}
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    );
+    setChatMode(false);
   }
 
   return (
@@ -165,16 +206,16 @@ export function ScreeningClient() {
               )}
             >
               {message.role === "assistant" && (
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback><Bot size={20} /></AvatarFallback>
+                <Avatar className="h-8 w-8 bg-primary text-primary-foreground flex items-center justify-center">
+                  <Bot size={20} />
                 </Avatar>
               )}
               <div
                 className={cn(
-                  "max-w-xs md:max-w-md lg:max-w-lg rounded-xl px-4 py-3 text-sm whitespace-pre-wrap",
+                  "max-w-xs md:max-w-md lg:max-w-lg rounded-xl px-4 py-3 text-sm whitespace-pre-wrap shadow-sm",
                   message.role === "user"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-secondary"
+                    : "bg-secondary text-secondary-foreground"
                 )}
               >
                 {message.content}
@@ -188,8 +229,8 @@ export function ScreeningClient() {
           ))}
           {isLoading && (
              <div className="flex items-start gap-3 justify-start">
-                <Avatar className="h-8 w-8">
-                    <AvatarFallback><Bot size={20} /></AvatarFallback>
+                <Avatar className="h-8 w-8 bg-primary text-primary-foreground flex items-center justify-center">
+                    <Bot size={20} />
                 </Avatar>
                 <div className="bg-secondary rounded-xl px-4 py-3">
                     <LoadingIndicator />
@@ -198,24 +239,46 @@ export function ScreeningClient() {
           )}
         </div>
       </ScrollArea>
-      <div className="p-4 border-t">
-        {isComplete ? (
-            <div className="flex justify-center">
-                <Button onClick={resetScreening}>Start New Screening</Button>
-            </div>
+      <div className="p-4 border-t bg-background">
+        {chatMode ? (
+          <div className="flex items-center gap-2">
+            <Textarea 
+              placeholder="Type your message..." 
+              className="flex-1 resize-none" 
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleFreeformResponse();
+                }
+              }}
+            />
+            <Button onClick={handleFreeformResponse} disabled={isLoading || inputValue.trim() === ""} size="icon">
+              <Send />
+            </Button>
+          </div>
         ) : currentQuestion && screeningType ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {screeningOptions[screeningType].responseOptions.map(opt => (
-                    <Button key={opt} variant="outline" onClick={() => handleResponse(opt)}>
+                    <Button key={opt} variant="outline" onClick={() => handleResponse(opt)} disabled={isLoading}>
                         {opt}
                     </Button>
                 ))}
             </div>
-        ) : (
-          <div className="text-center text-sm text-muted-foreground">
-            Please wait for the next question.
-          </div>
-        )}
+        ) : !isComplete && !isLoading ? (
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <Button variant="outline" onClick={() => router.push('/resources')}><BookOpen className="mr-2"/> Resource Hub</Button>
+                <Button variant="outline" onClick={() => router.push('/peer-support')}><Users className="mr-2"/> Peer Support</Button>
+                <Button variant="outline" onClick={() => router.push('/counsellor')}><Briefcase className="mr-2"/> Find a Counsellor</Button>
+            </div>
+        ) : null
+        }
+        {isComplete &&
+             <div className="mt-4 flex justify-center">
+                <Button onClick={resetScreening}><MessageSquarePlus className="mr-2"/>Start New Conversation</Button>
+            </div>
+        }
       </div>
     </div>
   );

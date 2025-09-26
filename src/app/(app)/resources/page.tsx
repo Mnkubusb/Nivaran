@@ -51,10 +51,10 @@ const resources = [
 
 export default function ResourcesPage() {
   return (
-    <div className="container mx-auto">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold font-headline">Resource Hub</h2>
-        <p className="text-muted-foreground">A curated library of articles, tools, and guides to support your well-being.</p>
+    <div className="container mx-auto py-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold font-headline">Resource Hub</h1>
+        <p className="text-muted-foreground mt-2">A curated library of articles, tools, and guides to support your well-being.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {resources.map((resource, index) => (
@@ -83,6 +83,11 @@ export default function ResourcesPage() {
           </Card>
         ))}
       </div>
+       <div className="mt-12 text-center">
+            <Button asChild>
+                <Link href="/screening">Back to Chat</Link>
+            </Button>
+        </div>
       <div className="mt-12 p-6 rounded-lg border bg-card text-card-foreground">
         <div className="flex items-center gap-4">
             <div className="bg-destructive/10 p-4 rounded-full">
