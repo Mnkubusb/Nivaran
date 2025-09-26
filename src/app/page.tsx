@@ -49,7 +49,7 @@ export default function Home() {
                 <Globe className="h-5 w-5" />
             </Button>
             <Button asChild>
-              <Link href="/signup" prefetch={false}>
+              <Link href="/login" prefetch={false}>
                 Let's Talk
               </Link>
             </Button>
@@ -128,13 +128,13 @@ export default function Home() {
               <Card className="text-center">
                 <CardHeader>
                   <div className="mx-auto bg-primary/20 text-primary-foreground p-3 rounded-full w-fit">
-                    <ShieldCheck className="w-8 h-8" />
+                    <HeartHandshake className="w-8 h-8" />
                   </div>
-                  <CardTitle className="mt-4">Private & Secure</CardTitle>
+                  <CardTitle className="mt-4">Peer Support</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Your conversations are confidential. We prioritize your privacy with secure authentication and data handling.
+                    Connect with a supportive community of peers who understand what you're going through.
                   </p>
                 </CardContent>
               </Card>
