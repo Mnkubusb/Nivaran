@@ -9,8 +9,7 @@ import {
     signOut,
     updateProfile,
     GoogleAuthProvider,
-    signInWithRedirect,
-    getRedirectResult
+    signInWithPopup
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,29 +37,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
-    // Check for redirect result from Google
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-          // This will trigger the redirect effect below
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting redirect result:", error);
-      }).finally(() => {
-        // Only set loading to false if onAuthStateChanged has also finished
-        if (auth.currentUser === user) {
-            setLoading(false);
-        }
-      });
-
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    // Redirect to screening page if user is logged in and not already there
-    // and not on a page that is part of the flow (like resources)
     const publicPaths = ['/', '/login', '/signup'];
     if (user && !loading && publicPaths.includes(pathname)) {
       router.push("/screening");
@@ -84,10 +64,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return signOut(auth);
   };
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    setLoading(true);
-    return signInWithRedirect(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    setUser(result.user);
+    return result;
   };
 
   const value = {
@@ -99,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loginWithGoogle
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
