@@ -50,7 +50,7 @@ export default function Home() {
             </Button>
             <Button asChild>
               <Link href="/signup" prefetch={false}>
-                Start Building
+                Let's Talk
               </Link>
             </Button>
           </nav>
@@ -62,12 +62,12 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-1 lg:gap-12 text-center">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-4">
-                  <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none font-headline">
-                    Let&apos;s make your dream a <span className="text-primary-foreground bg-primary/80 px-2 rounded-md">reality.</span>
+                  <h1 style={{lineHeight: "90px"}} className="text-4xl mb-2 font-bold tracking-tighter sm:text-6xl xl:text-7xl/none font-headline">
+                    Hi there! Wanna share what’s on your <span className="text-primary-foreground bg-primary/80 px-2 rounded-md">mind today?</span> I'm all ears!
                   </h1>
-                   <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none font-headline">
+                   {/* <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none font-headline">
                     Right now.
-                  </h1>
+                  </h1> */}
                   <p className="max-w-[600px] mx-auto text-muted-foreground md:text-xl">
                     Heal Buddy offers a safe and confidential space to check in with yourself through guided, conversational screenings powered by AI.
                   </p>
