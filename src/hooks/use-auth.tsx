@@ -49,7 +49,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .catch((error) => {
         console.error("Error getting redirect result:", error);
       }).finally(() => {
-        setLoading(false);
+        // Only set loading to false if onAuthStateChanged has also finished
+        if (auth.currentUser === user) {
+            setLoading(false);
+        }
       });
 
     return () => unsubscribe();
@@ -58,8 +61,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Redirect to screening page if user is logged in and not already there
     // and not on a page that is part of the flow (like resources)
-    const protectedPaths = ['/screening', '/resources', '/peer-support', '/counsellor'];
-    if (user && !loading && !protectedPaths.includes(pathname)) {
+    const publicPaths = ['/', '/login', '/signup'];
+    if (user && !loading && publicPaths.includes(pathname)) {
       router.push("/screening");
     }
   }, [user, loading, router, pathname]);
