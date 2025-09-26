@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Bot, User, Send } from "lucide-react";
+import { Bot, User, ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ConversationalScreeningInput } from "@/ai/flows/conversational-screening";
 import { Textarea } from "./ui/textarea";
@@ -229,6 +229,13 @@ export function ScreeningClient() {
     p: ({children}: {children: React.ReactNode}) => <p className="mb-2 last:mb-0">{children}</p>
   };
 
+  const suggestionPrompts = [
+    "I'm feeling anxious",
+    "I'm having trouble sleeping",
+    "Start PHQ-9 Screening",
+    "What are some coping strategies?",
+  ];
+
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
         <header className="p-4 flex items-center justify-between">
@@ -295,40 +302,72 @@ export function ScreeningClient() {
                 </div>
             )}
         </ScrollArea>
-        <div className="p-4 bg-background/95">
-            <div className="relative">
+        <div className="p-4 bg-background/50 backdrop-blur-lg rounded-t-3xl border-t">
+            <div className="relative bg-background rounded-2xl">
                 {screeningType && currentQuestion ? (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {screeningOptions[screeningType].responseOptions.map(opt => (
-                            <Button key={opt} variant="outline" onClick={() => handleResponse(opt)} disabled={isLoading}>
-                                {opt}
-                            </Button>
-                        ))}
+                    <div className="p-4">
+                        <p className="text-sm text-center text-muted-foreground mb-2">Please select a response for the question above:</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {screeningOptions[screeningType].responseOptions.map(opt => (
+                                <Button key={opt} variant="outline" onClick={() => handleResponse(opt)} disabled={isLoading}>
+                                    {opt}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
                 ) : (
                 <>
                     <Textarea 
-                    placeholder="Message WellConverse..." 
-                    className="flex-1 resize-none pr-12 bg-secondary border-0" 
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleFreeformResponse();
-                        }
-                    }}
+                        placeholder="Message WellConverse..." 
+                        className="flex-1 resize-none pr-14 pl-4 py-3 bg-transparent border-0 focus-visible:ring-0" 
+                        rows={1}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleFreeformResponse();
+                            }
+                        }}
                     />
-                    <Button onClick={handleFreeformResponse} disabled={isLoading || inputValue.trim() === ""} size="icon" className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8">
-                        <Send size={18} />
+                    <Button 
+                        onClick={handleFreeformResponse} 
+                        disabled={isLoading || inputValue.trim() === ""} 
+                        size="icon" 
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 bg-primary/90 hover:bg-primary text-primary-foreground"
+                    >
+                        <ArrowUp size={20} />
                     </Button>
                 </>
                 )}
             </div>
-             <p className="text-xs text-center text-muted-foreground mt-2">
+            {(!screeningType || !currentQuestion) && (
+                 <div className="mt-3">
+                     <p className="text-xs text-muted-foreground mb-2 px-2">Not sure where to start? Try one of these:</p>
+                     <div className="flex flex-wrap gap-2">
+                        {suggestionPrompts.map((prompt) => (
+                             <Button 
+                                key={prompt} 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-full h-auto py-1 px-3 text-xs"
+                                onClick={() => {
+                                    setInputValue(prompt);
+                                    handleFreeformResponse();
+                                }}
+                            >
+                                 {prompt}
+                             </Button>
+                        ))}
+                     </div>
+                 </div>
+            )}
+             <p className="text-xs text-center text-muted-foreground mt-4">
                 WellConverse is an AI assistant and is not a substitute for professional medical advice.
             </p>
         </div>
     </div>
   );
 }
+
+    
