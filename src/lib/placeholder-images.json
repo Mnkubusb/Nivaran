@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A person sitting calmly and meditating in a serene, light-filled room.",
+      "imageUrl": "https://images.unsplash.com/photo-1701416050615-10bd79bab13f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzZXJlbmUlMjBtZWRpdGF0aW9ufGVufDB8fHx8MTc1ODg3MDY0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "serene meditation"
+    }
+  ]
 }
