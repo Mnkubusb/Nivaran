@@ -217,7 +217,7 @@ export function ScreeningClient() {
     a: (props: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>) => {
         const { href, children } = props;
         if (href) {
-            return <Button asChild variant="link" className="p-0 h-auto text-base"><Link href={href}>{children}</Link></Button>
+            return <Button asChild variant="link" className="p-0 h-auto text-base text-black"><Link href={href}>{children}</Link></Button>
         }
         return <>{children}</>
     },
