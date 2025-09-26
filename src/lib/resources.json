@@ -1,0 +1,59 @@
+{
+    "resources": [
+      {
+        "id": "1",
+        "title": "Guided Meditation for Anxiety",
+        "description": "A 10-minute guided meditation to help calm anxiety and reduce stress. Find a quiet space and follow along.",
+        "type": "Video",
+        "source": "YouTube",
+        "url": "O-6f5wQXSu8",
+        "thumbnail": "https://picsum.photos/seed/meditation/600/400"
+      },
+      {
+        "id": "2",
+        "title": "Understanding Depression (PHQ-9)",
+        "description": "An animated video explaining the symptoms of depression and how tools like the PHQ-9 can help in understanding them.",
+        "type": "Video",
+        "source": "YouTube",
+        "url": "Dx32b5i-D5s",
+        "thumbnail": "https://picsum.photos/seed/depression/600/400"
+      },
+      {
+        "id": "3",
+        "title": "Calming Sleep Music",
+        "description": "Relaxing music designed to help you fall asleep faster and enjoy a deeper, more restful sleep.",
+        "type": "Audio",
+        "source": "Spotify",
+        "url": "https://open.spotify.com/playlist/37i9dQZF1DWZd79rJ6a7lp",
+        "thumbnail": "https://picsum.photos/seed/sleep/600/400"
+      },
+      {
+        "id": "4",
+        "title": "Cognitive Behavioral Therapy (CBT) Explained",
+        "description": "A clear, concise article from the American Psychological Association explaining what CBT is and how it works.",
+        "type": "Article",
+        "source": "Web",
+        "url": "https://www.apa.org/ptsd-guideline/patients-and-families/cognitive-behavioral",
+        "thumbnail": "https://picsum.photos/seed/cbt/600/400"
+      },
+      {
+        "id": "5",
+        "title": "5-Minute Breathing Exercise",
+        "description": "A quick and effective mindful breathing exercise to help you ground yourself during moments of stress.",
+        "type": "Video",
+        "source": "YouTube",
+        "url": "inhu_a-S-14",
+        "thumbnail": "https://picsum.photos/seed/breathing/600/400"
+      },
+      {
+        "id": "6",
+        "title": "What is Generalized Anxiety Disorder (GAD-7)?",
+        "description": "Learn about GAD and how the GAD-7 screening helps in identifying its symptoms. An informative video for better understanding.",
+        "type": "Video",
+        "source": "YouTube",
+        "url": "9mPwQTiMSj8",
+        "thumbnail": "https://picsum.photos/seed/gad/600/400"
+      }
+    ]
+  }
+  

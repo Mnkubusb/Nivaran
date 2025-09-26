@@ -1,53 +1,9 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, Headphones, BookText } from "lucide-react";
-
-const resources = [
-  {
-    title: "Understanding Anxiety",
-    description: "An in-depth article about the symptoms, causes, and treatments for anxiety disorders.",
-    icon: BrainCircuit,
-    link: "#",
-    type: "Article"
-  },
-  {
-    title: "Guided Meditation for Sleep",
-    description: "A 15-minute audio guide to help you relax and fall asleep peacefully.",
-    icon: Headphones,
-    link: "#",
-    type: "Audio"
-  },
-  {
-    title: "The PHQ-9 Explained",
-    description: "Learn more about the PHQ-9 screening tool and what the scores mean.",
-    icon: BookText,
-    link: "#",
-    type: "Guide"
-  },
-  {
-    title: "Coping with Depression",
-    description: "Practical strategies and techniques for managing symptoms of depression.",
-    icon: BrainCircuit,
-    link: "#",
-    type: "Article"
-  },
-  {
-    title: "Mindful Breathing Exercise",
-    description: "A short, 5-minute breathing exercise to calm your mind and reduce stress.",
-    icon: Headphones,
-    link: "#",
-    type: "Audio"
-  },
-  {
-    title: "Understanding GAD-7",
-    description: "A complete guide to the GAD-7 screening, its purpose, and interpretation.",
-    icon: BookText,
-    link: "#",
-    type: "Guide"
-  },
-];
-
+import { ArrowRight, Headphones } from "lucide-react";
+import { resources } from "@/lib/resources";
+import Image from "next/image";
 
 export default function ResourcesPage() {
   return (
@@ -57,25 +13,38 @@ export default function ResourcesPage() {
         <p className="text-muted-foreground mt-2">A curated library of articles, tools, and guides to support your well-being.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {resources.map((resource, index) => (
-          <Card key={index} className="flex flex-col">
+        {resources.map((resource) => (
+          <Card key={resource.id} className="flex flex-col">
             <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="bg-primary/10 p-3 rounded-md">
-                    <resource.icon className="w-6 h-6 text-primary" />
+              {resource.type === "Video" && resource.source === "YouTube" ? (
+                <div className="aspect-video rounded-t-lg overflow-hidden -m-6 mb-0">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${resource.url}`}
+                    title={resource.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
                 </div>
-                <div>
-                    <CardTitle>{resource.title}</CardTitle>
-                    <CardDescription>{resource.type}</CardDescription>
+              ) : (
+                <div className="relative aspect-video rounded-t-lg overflow-hidden -m-6 mb-0">
+                <Image
+                  src={resource.thumbnail}
+                  alt={resource.title}
+                  fill
+                  className="object-cover"
+                  data-ai-hint="mental wellness"
+                />
                 </div>
-              </div>
+              )}
             </CardHeader>
-            <CardContent className="flex-grow">
-              <p className="text-muted-foreground">{resource.description}</p>
+             <CardContent className="flex-grow pt-8">
+               <CardTitle className="mb-2">{resource.title}</CardTitle>
+              <CardDescription>{resource.description}</CardDescription>
             </CardContent>
             <CardFooter>
               <Button asChild variant="outline" className="w-full">
-                <Link href={resource.link}>
+                <Link href={resource.url.startsWith('http') ? resource.url : `https://www.youtube.com/watch?v=${resource.url}`} target="_blank">
                   View Resource <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
