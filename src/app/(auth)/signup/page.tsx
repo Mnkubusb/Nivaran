@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -41,19 +41,12 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 export default function SignupForm() {
-  const { user, signup, loginWithGoogle, loading } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (user && !loading) {
-      router.push("/screening");
-    }
-  }, [user, loading, router]);
-
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +65,7 @@ export default function SignupForm() {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-      // No need to redirect here, AuthProvider handles it
+      // AuthProvider will handle the redirect
     } catch (error: any) {
        toast({
         title: "Login Failed",
