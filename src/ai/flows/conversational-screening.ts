@@ -195,14 +195,20 @@ const conversationalScreeningFlow = ai.defineFlow(
             'I hear you, and I want you to know you are not alone. Your safety is the most important thing right now. If you are in immediate danger, please call emergency services. You can also reach out to a crisis helpline like AASRA at +91-98204 66726. Help is available, and you deserve support.',
         };
     }
-
+    
     if (questionNumber >= questions.length) {
       // Screening is complete, calculate score and return summary.
       let score = 0;
       conversationHistory.forEach(item => {
-        const value = (scoringMap as any)[item.answer]
-        if (value !== undefined) {
-            score += value;
+        const answer = item.answer;
+        const mappedValue = Object.entries(scoringMap).find(([key, _]) => answer.toLowerCase().includes(key.toLowerCase()))?.[1]
+        if (mappedValue !== undefined) {
+            score += mappedValue;
+        } else {
+            const numericValue = parseInt(answer, 10);
+            if (!isNaN(numericValue) && numericValue >=0 && numericValue <=3) {
+                score += numericValue;
+            }
         }
       });
       
@@ -224,12 +230,7 @@ const conversationalScreeningFlow = ai.defineFlow(
       };
     }
 
-    const nextQ = `Q${questionNumber + 1} of ${questions.length}: ${questions[questionNumber]}`;
-
-    return {
-      nextQuestion: nextQ,
-      isComplete: false,
-      summary: undefined,
-    };
+    const {output} = await prompt(input);
+    return output!;
   }
 );
