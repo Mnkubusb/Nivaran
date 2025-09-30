@@ -24,11 +24,13 @@ export default function ResourcesPage() {
   const [isPending, startTransition] = useTransition();
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [audioPlayer, setAudioPlayer] = useState<{ url: string; title: string } | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const fetchAndSetResources = (query: string) => {
     startTransition(async () => {
       const results = await searchResources(query);
       setSearchResults(results);
+      setInitialLoad(false);
     });
   }
 
@@ -70,7 +72,7 @@ export default function ResourcesPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {isPending ? (
+          {isPending || initialLoad ? (
             Array.from({ length: 6 }).map((_, i) => (
               <Card key={i} className="flex flex-col">
                 <CardHeader>
@@ -116,9 +118,9 @@ export default function ResourcesPage() {
           )}
         </div>
         
-        {searchResults.length === 0 && !isPending && (
+        {searchResults.length === 0 && !isPending && !initialLoad && (
              <div className="text-center text-muted-foreground mt-12">
-                 <p>Search for topics like "mindfulness" or "anxiety relief" to get started.</p>
+                 <p>No results found. Try another search.</p>
              </div>
         )}
 
