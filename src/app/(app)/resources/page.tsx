@@ -8,7 +8,7 @@ import { ArrowRight, Headphones, Search, Youtube, Music } from "lucide-react";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { searchResources } from "./actions";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -25,15 +25,23 @@ export default function ResourcesPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [audioPlayer, setAudioPlayer] = useState<{ url: string; title: string } | null>(null);
 
-  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const query = formData.get('search') as string;
-    
+  const fetchAndSetResources = (query: string) => {
     startTransition(async () => {
       const results = await searchResources(query);
       setSearchResults(results);
     });
+  }
+
+  useEffect(() => {
+    fetchAndSetResources("psychoeducational resources");
+  }, []);
+
+
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const query = formData.get('search') as string;
+    fetchAndSetResources(query);
   };
 
   const playAudio = (url: string, title: string) => {
